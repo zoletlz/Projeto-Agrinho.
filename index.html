@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimãoAgro | Monitoramento & Regeneração</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="fundo-animado">
+        <span style="--i:1;">🌱</span><span style="--i:3;">🚜</span>
+        <span style="--i:2;">☀️</span><span style="--i:5;">💧</span>
+        <span style="--i:4;">☁️</span><span style="--i:6;">🍃</span>
+    </div>
+
+    <nav class="navbar">
+        <div class="logo">🌲 Simão<span>Agro</span></div>
+        <div class="status-badge"><span class="ponto-pulso"></span> Monitoramento Regional Ativo</div>
+    </nav>
+
+    <div class="dashboard-wrapper">
+        
+        <header class="boas-vindas">
+            <h1>Clima & Diagnóstico Regenerativo</h1>
+            <p class="subtitulo">Dados de sensoriamento remoto e balanço hídrico para <strong>Campina do Simão - PR</strong></p>
+            
+            <div class="alerta-risco-box" id="card-risco">
+                <div class="risco-icone">⚠️</div>
+                <div class="risco-texto">
+                    <h3>Alerta de Risco: Queda de Temperatura & Orvalho Alto</h3>
+                    <p>Frente fria avançando pelo Sul do país. Risco moderado de geada fraca em baixadas da região nos próximos 3 dias. Monitore a cobertura morta do solo.</p>
+                </div>
+                <span class="badge-nivel-risco">Atenção</span>
+            </div>
+        </header>
+
+        <section class="grid-clima-sensores">
+            <div class="card-sensor">
+                <div class="sensor-icon">🌡️</div>
+                <div>
+                    <h4>Temperatura</h4>
+                    <p class="sensor-valor">18.5 °C</p>
+                </div>
+            </div>
+            <div class="card-sensor">
+                <div class="sensor-icon">💧</div>
+                <div>
+                    <h4>Umidade do Ar</h4>
+                    <p class="sensor-valor">72%</p>
+                </div>
+            </div>
+            <div class="card-sensor">
+                <div class="sensor-icon">🪵</div>
+                <div>
+                    <h4>Umidade do Solo</h4>
+                    <p class="sensor-valor" id="val-solo">52%</p>
+                </div>
+            </div>
+            <div class="card-sensor">
+                <div class="sensor-icon">🌧️</div>
+                <div>
+                    <h4>Previsão de Chuva/Seca</h4>
+                    <p class="sensor-valor" style="font-size: 1.1rem; color: #a7c957;">Chuvas Regulares Previstas</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="secao-cronograma">
+            <h2 class="titulo-secao">💡 Janelas Ideais de Manejo Tecnológico</h2>
+            <div class="grid-manejo-alertas">
+                
+                <div class="card-recomendacao" id="rec-plantio">
+                    <div class="rec-topo">
+                        <span class="rec-emoji">🚜</span>
+                        <div>
+                            <h4>Momento Ideal para Plantio Direto</h4>
+                            <p id="data-plantio">Calculando melhor janela hídrica com base no solo de Campina do Simão...</p>
+                        </div>
+                    </div>
+                    <span class="status-tag">Analisando</span>
+                </div>
+
+                <div class="card-recomendacao" id="rec-adubacao">
+                    <div class="rec-topo">
+                        <span class="rec-emoji">🍃</span>
+                        <div>
+                            <h4>Gestão de Adubação (Quando Aplicar)</h4>
+                            <p id="data-adubacao">Aguardando parâmetros do microclima local...</p>
+                        </div>
+                    </div>
+                    <span class="status-tag">Analisando</span>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="secao-satelite">
+            <div class="satelite-header">
+                <div>
+                    <h3>🛰️ Sensoriamento por Satélite (Camadas de Solo e Planta)</h3>
+                    <p>Monitore os índices acumulados de fitomassa (NDVI) ou a temperatura da superfície da sua propriedade em Campina do Simão.</p>
+                </div>
+                <div class="botoes-filtros">
+                    <button class="btn-filtro ativo" onclick="filtrarSatelite('ndvi')">Ver Índice de Vegetação (NDVI)</button>
+                    <button class="btn-filtro" onclick="filtrarSatelite('termico')">Ver Mapa Térmico do Solo</button>
+                </div>
+            </div>
+            <div id="mapaAgro"></div>
+        </section>
+
+        <section class="secao-graficos">
+            <div class="grafico-card">
+                <h3>📊 Balanço Hídrico Semanal (Entradas de Chuva vs. Evapotranspiração)</h3>
+                <div class="canvas-container">
+                    <canvas id="chartHidrico"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="secao-calculadora">
+            <div class="calculadora-card">
+                <h3>🧮 Calculadora de Pegada de Carbono e Balanço Atmosférico</h3>
+                <p>Verifique o impacto das suas práticas. O Plantio Direto atua fixando carbono ($CO_2$) diretamente na estrutura orgânica do solo.</p>
+                
+                <div class="form-calculadora">
+                    <div class="input-grupo">
+                        <label>Consumo Anual de Diesel da Frota (Litros):</label>
+                        <input type="number" id="diesel-input" value="1400">
+                    </div>
+                    <div class="input-grupo">
+                        <label>Uso de Adubos Nitrogenados Sintéticos (kg/Ano):</label>
+                        <input type="number" id="nitro-input" value="2000">
+                    </div>
+                    <div class="input-grupo">
+                        <label>Área sob Sistema de Plantio Direto (Hectares):</label>
+                        <input type="number" id="hec-input" value="75">
+                    </div>
+                </div>
+
+                <button class="btn-calcular" onclick="processarPegadaCarbono()">Calcular Balanço de Carbono ✨</button>
+
+                <div class="painel-resultado escondido" id="resultado-carbono-box">
+                    <h4 id="resultado-titulo">Resultado do Balanço</h4>
+                    <p id="resultado-texto"></p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p>SimãoAgro © 2026 - Agricultura de Precisão Regenerativa para o Planalto Paranaense.</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
